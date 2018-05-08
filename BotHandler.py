@@ -26,7 +26,7 @@ class BotHandler:
         if len(get_result) > 0:
             last_update = get_result[-1]
         elif len(get_result) <= 0:
-			last_update = null
+	    	last_update = ""
         #else:
         #    print("len(get_result): " + str(len(get_result)))
         #    last_update = get_result[len(get_result)]
