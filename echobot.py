@@ -29,6 +29,25 @@ def error(bot, update, error):
     """Log Errors caused by Updates."""
     logger.warning('Update "%s" caused error "%s"', update, error)
 
+def log_to_onenote(bot, update):
+	message = update.message.text
+	from_user = update.message.from_user}
+	if "#on" in message:
+		response = requests.post(
+			webhook_url, data=json.dumps({"text": message.replace("#on", ""), "sender": from_user}),
+			headers={'Content-Type': 'application/json'}
+		)
+   
+		if response.status_code != 200:
+			raise ValueError(
+				'Request to Zapier returned an error %s, the response is:\n%s'
+				% (response.status_code, response.text)
+		)
+
+		elif response.status_code == 200:
+			print("pushed message from " + from_user + ": " + message)
+
+    update.message.reply_text("saved" + update.message.text)
 
 def main():
     """Start the bot."""
@@ -43,7 +62,7 @@ def main():
     dp.add_handler(CommandHandler("help", help))
 
     # on noncommand i.e message - echo the message on Telegram
-    dp.add_handler(MessageHandler(Filters.text, echo))
+    dp.add_handler(MessageHandler(Filters.text, log_to_onenote))
 
     # log all errors
     dp.add_error_handler(error)
@@ -51,6 +70,21 @@ def main():
     # Start the Bot
     updater.start_polling()
 
+	if "#on" in last_chat_text:
+            response = requests.post(
+			    webhook_url, data=json.dumps({"text": last_chat_text.replace("#on", ""), "sender": last_chat_name}),
+			    headers={'Content-Type': 'application/json'}
+		    )
+       
+            if response.status_code != 200:
+			    raise ValueError(
+				    'Request to Zapier returned an error %s, the response is:\n%s'
+				    % (response.status_code, response.text)
+		    )
+	
+            elif response.status_code == 200:
+			    print("pushed message from " + last_chat_name + ": " + last_chat_text)
+				
     # Run the bot until you press Ctrl-C or the process receives SIGINT,
     # SIGTERM or SIGABRT. This should be used most of the time, since
     # start_polling() is non-blocking and will stop the bot gracefully.
