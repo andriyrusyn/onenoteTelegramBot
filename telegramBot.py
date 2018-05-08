@@ -1,5 +1,5 @@
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
-import logging
+import logging, requests, json
 
 # Enable logging
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
@@ -7,6 +7,8 @@ logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s
 
 logger = logging.getLogger(__name__)
 
+
+webhook_url = "https://hooks.zapier.com/hooks/catch/2938864/fjb4tv/silent/" 
 
 # Define a few command handlers. These usually take the two arguments bot and
 # update. Error handlers also receive the raised TelegramError object in error.
@@ -30,24 +32,24 @@ def error(bot, update, error):
     logger.warning('Update "%s" caused error "%s"', update, error)
 
 def log_to_onenote(bot, update):
-	message = update.message.text
-	from_user = update.message.from_user
-	if "#on" in message:
-		response = requests.post(
-			webhook_url, data=json.dumps({"text": message.replace("#on", ""), "sender": from_user}),
-			headers={'Content-Type': 'application/json'}
-		)
+    message = update.message.text
+    from_user = update.message.from_user.first_name
+    
+    if "#on" in message:
+        response = requests.post(
+            webhook_url, data=json.dumps({"text": message.replace("#on", ""), "sender": from_user}),
+            headers={'Content-Type': 'application/json'}
+        )
    
-		if response.status_code != 200:
-			raise ValueError(
-				'Request to Zapier returned an error %s, the response is:\n%s'
-				% (response.status_code, response.text)
-		)
+        if response.status_code != 200:
+            raise ValueError(
+                'Request to Zapier returned an error %s, the response is:\n%s'
+                % (response.status_code, response.text)
+            )
 
-		elif response.status_code == 200:
-			print("pushed message from " + from_user + ": " + message)
-
-    update.message.reply_text("saved" + update.message.text)
+        elif response.status_code == 200:
+            print("pushed message from " + from_user + ": " + message)
+            update.message.reply_text("Thanks " + from_user + ", I just saved: " + message)
 
 def main():
     """Start the bot."""
@@ -70,21 +72,6 @@ def main():
     # Start the Bot
     updater.start_polling()
 
-	if "#on" in last_chat_text:
-            response = requests.post(
-			    webhook_url, data=json.dumps({"text": last_chat_text.replace("#on", ""), "sender": last_chat_name}),
-			    headers={'Content-Type': 'application/json'}
-		    )
-       
-            if response.status_code != 200:
-			    raise ValueError(
-				    'Request to Zapier returned an error %s, the response is:\n%s'
-				    % (response.status_code, response.text)
-		    )
-	
-            elif response.status_code == 200:
-			    print("pushed message from " + last_chat_name + ": " + last_chat_text)
-				
     # Run the bot until you press Ctrl-C or the process receives SIGINT,
     # SIGTERM or SIGABRT. This should be used most of the time, since
     # start_polling() is non-blocking and will stop the bot gracefully.

@@ -1,1 +1,1 @@
-worker: python echobot.py
+worker: python telegramBot.py
