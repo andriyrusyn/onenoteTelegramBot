@@ -31,7 +31,7 @@ def error(bot, update, error):
 
 def log_to_onenote(bot, update):
 	message = update.message.text
-	from_user = update.message.from_user}
+	from_user = update.message.from_user
 	if "#on" in message:
 		response = requests.post(
 			webhook_url, data=json.dumps({"text": message.replace("#on", ""), "sender": from_user}),
