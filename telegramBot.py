@@ -53,7 +53,7 @@ def log_to_onenote(bot, update):
 
         elif response.status_code == 200:
             print("pushed message from " + from_user + ": " + message)
-            update.message.reply_text("Thanks " + from_user + ", I just saved: " + message[:50])
+            update.message.reply_text("Thanks " + from_user + ", I just saved: " + message[:50] + "...")
 
 def main():
     """Start the bot."""
