@@ -1,5 +1,5 @@
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
-import logging, requests, json
+import logging, requests, json, config
 
 # Enable logging
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
@@ -8,7 +8,7 @@ logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s
 logger = logging.getLogger(__name__)
 
 
-webhook_url = "https://hooks.zapier.com/hooks/catch/2938864/fjb4tv/silent/" 
+webhook_url = config.webhook_url
 
 # Define a few command handlers. These usually take the two arguments bot and
 # update. Error handlers also receive the raised TelegramError object in error.
@@ -33,11 +33,15 @@ def error(bot, update, error):
 
 def log_to_onenote(bot, update):
     message = update.message.text
-    from_user = update.message.from_user.first_name
+    from_user = update.message.from_user.first_name.title()
     
-    if "#on" in message:
+    if "#" in message:
+		# find the hashtag that was used and extract it
+        hash_index = message.find("#")
+        hashtag = message[hash_index:message.find(" ", hash_index)]
+		
         response = requests.post(
-            webhook_url, data=json.dumps({"text": message.replace("#on", ""), "sender": from_user}),
+            webhook_url, data=json.dumps({"text": message.replace("#on", ""), "sender": from_user, "hashtag":hashtag}),
             headers={'Content-Type': 'application/json'}
         )
    
@@ -49,12 +53,12 @@ def log_to_onenote(bot, update):
 
         elif response.status_code == 200:
             print("pushed message from " + from_user + ": " + message)
-            update.message.reply_text("Thanks " + from_user + ", I just saved: " + message)
+            update.message.reply_text("Thanks " + from_user + ", I just saved: " + message[:50])
 
 def main():
     """Start the bot."""
     # Create the EventHandler and pass it your bot's token.
-    updater = Updater("577910923:AAG78ykB0qGRYEamF1rhSIp0PPhqwffaN18")
+    updater = Updater(config.bot_token)
 
     # Get the dispatcher to register handlers
     dp = updater.dispatcher
