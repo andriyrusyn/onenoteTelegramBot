@@ -36,24 +36,26 @@ def log_to_onenote(bot, update):
     from_user = update.message.from_user.first_name.title()
     
     if "#" in message:
-		# find the hashtag that was used and extract it
+        # find the hashtag that was used and extract it
         hash_index = message.find("#")
         hashtag = message[hash_index:message.find(" ", hash_index)]
-		
-        response = requests.post(
-            webhook_url, data=json.dumps({"text": message.replace("#on", ""), "sender": from_user, "hashtag":hashtag}),
-            headers={'Content-Type': 'application/json'}
-        )
-   
-        if response.status_code != 200:
-            raise ValueError(
-                'Request to Zapier returned an error %s, the response is:\n%s'
-                % (response.status_code, response.text)
+        
+        if hashtag != "#":
+            clean_message = message.replace(hashtag, "")
+            response = requests.post(
+                webhook_url, data=json.dumps({"text": clean_message, "sender": from_user, "hashtag":hashtag}),
+                headers={'Content-Type': 'application/json'}
             )
+       
+            if response.status_code != 200:
+                raise ValueError(
+                    'Request to Zapier returned an error %s, the response is:\n%s'
+                    % (response.status_code, response.text)
+                )
 
-        elif response.status_code == 200:
-            print("pushed message from " + from_user + ": " + message)
-            update.message.reply_text("Thanks " + from_user + ", I just saved: " + message[:50] + "...")
+            elif response.status_code == 200:
+                print("pushed message from " + from_user + " with hashtag: " + hashtag + " and message body: " + clean_message)
+                update.message.reply_text("Thanks " + from_user + ", I just saved: " + clean_message[:50] + "...")
 
 def main():
     """Start the bot."""
