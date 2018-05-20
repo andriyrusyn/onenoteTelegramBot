@@ -31,10 +31,26 @@ def error(bot, update, error):
     """Log Errors caused by Updates."""
     logger.warning('Update "%s" caused error "%s"', update, error)
 
+def log_image_to_onenote(bot, update):
+    path = update.message.photo[3].get_file().file_path
+    print (path)
+    response = requests.post(
+            config.image_webhook_url, data=json.dumps({"image_url": path}),
+            headers={'Content-Type': 'application/json'}
+        )
+    if response.status_code != 200:
+        raise ValueError(
+            'Request to Zapier returned an error %s, the response is:\n%s'
+            % (response.status_code, response.text)
+        )
+    elif response.status_code == 200:
+        print("pushed image")
+        update.message.reply_text("Saving image...")
+		
 def log_to_onenote(bot, update):
-    message = update.message.text
+    message = update.message.text    
     from_user = update.message.from_user.first_name.title()
-    
+	
     if "#" in message:
         # find the hashtag that was used and extract it
         hash_index = message.find("#")
@@ -71,6 +87,7 @@ def main():
 
     # on noncommand i.e message - echo the message on Telegram
     dp.add_handler(MessageHandler(Filters.text, log_to_onenote))
+    dp.add_handler(MessageHandler(Filters.photo, log_image_to_onenote))
 
     # log all errors
     dp.add_error_handler(error)
@@ -86,3 +103,4 @@ def main():
 
 if __name__ == '__main__':
     main()
+
