@@ -1,5 +1,5 @@
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
-import logging, requests, json, config
+import logging, requests, json, config, os
 
 # Enable logging
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
@@ -33,9 +33,10 @@ def error(bot, update, error):
 
 def log_image_to_onenote(bot, update):
     path = update.message.photo[3].get_file().file_path
+	image_webhook_url = config.image_webhook_url or os.environ.get('image_webhook_url')
     print (path)
     response = requests.post(
-            config.image_webhook_url, data=json.dumps({"image_url": path}),
+            image_webhook_url, data=json.dumps({"image_url": path}),
             headers={'Content-Type': 'application/json'}
         )
     if response.status_code != 200:
