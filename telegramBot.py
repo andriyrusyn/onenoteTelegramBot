@@ -33,7 +33,7 @@ def error(bot, update, error):
 
 def log_image_to_onenote(bot, update):
     path = update.message.photo[3].get_file().file_path
-	image_webhook_url = config.image_webhook_url or os.environ.get('image_webhook_url')
+    image_webhook_url = config.image_webhook_url or os.environ.get('image_webhook_url')
     print (path)
     response = requests.post(
             image_webhook_url, data=json.dumps({"image_url": path}),
