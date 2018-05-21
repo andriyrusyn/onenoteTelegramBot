@@ -32,7 +32,8 @@ def error(bot, update, error):
     logger.warning('Update "%s" caused error "%s"', update, error)
 
 def log_image_to_onenote(bot, update):
-    path = update.message.photo[3].get_file().file_path
+	num_images = len(update.message.photo)
+    path = update.message.photo[num_images].get_file().file_path
     image_webhook_url = os.environ.get('image_webhook_url') if os.environ.get('environment') == 'prod' else config.image_webhook_url 
     print (path)
     response = requests.post(
